@@ -168,20 +168,20 @@ public class MySQLAccess {
     public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
         Connection connect = null;
         PreparedStatement updateStatement = null;
-        String sql_string= "UPDATE"+ db_name + ".Products SET OldPrice = ?, NewPirce = ?, Flag = ? WHERE ProductId = ?";
+        String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPirce = ?, Flag = ? WHERE ProductId = ?";
 
         System.out.println("sql: " + sql_string);
         try
-        {
+        {   System.out.println("update product" + oldPrice + " " + newPrice);
             connect = getConnection();
             updateStatement = connect.prepareStatement(sql_string);
             updateStatement.setDouble(1, oldPrice);
             updateStatement.setDouble(2, newPrice);
-            updateStatement.setString(3, productId);
+            updateStatement.setString(4, productId);
             if(oldPrice > newPrice){
-                updateStatement.setInt(4,1);
+                updateStatement.setInt(3,1);
             }else {
-                updateStatement.setInt(4,0);
+                updateStatement.setInt(3,0);
             }
             updateStatement.executeUpdate();
         }

@@ -41,16 +41,17 @@ public class MonitorMain {
                     double cachedPrice = (double) cache.get(product.productId);
 
                     //Price has changed, update database and cache
-                    if(cachedPrice != newPrice){
+                    //if(cachedPrice != newPrice){
                         //1.update DB: oldPice = cacahedPrice,newPrice = newPrice
                         try {
-                            sqlAccess.updatePrice(product.productId, cachedPrice,newPrice);
+                            sqlAccess.updatePrice(product.productId, cachedPrice, newPrice);
+                            System.out.println("update product" + product.productId + " " + product.newPrice);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         //2.update cached price
                         cache.set(product.productId, 72000, newPrice);
-                    }
+                    //}
 
 
 

@@ -30,8 +30,7 @@ public class MonitorMain {
                                        AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 Product product = (Product) SerializationUtils.deserialize(body);
-                System.out.println("id  -->" + product.productId);
-                System.out.println("price     --> " + product.newPrice);
+
 
                 double newPrice = product.newPrice;
                 MemcachedClient cache = new MemcachedClient(new InetSocketAddress("127.0.0.1",11211));
@@ -41,7 +40,7 @@ public class MonitorMain {
                     double cachedPrice = (double) cache.get(product.productId);
 
                     //Price has changed, update database and cache
-                    //if(cachedPrice != newPrice){
+                    if(cachedPrice != newPrice){
                         //1.update DB: oldPice = cacahedPrice,newPrice = newPrice
                         try {
                             sqlAccess.updatePrice(product.productId, cachedPrice, newPrice);
@@ -51,7 +50,7 @@ public class MonitorMain {
                         }
                         //2.update cached price
                         cache.set(product.productId, 72000, newPrice);
-                    //}
+                    }
 
 
 
@@ -63,6 +62,8 @@ public class MonitorMain {
                     //set database
                     try {
                         sqlAccess.addProductData(product);
+                        System.out.println("Add into database:Id  -->" + product.productId);
+                        System.out.println("Add into database: Price --> " + product.newPrice);
 
                     } catch (Exception e) {
                         e.printStackTrace();

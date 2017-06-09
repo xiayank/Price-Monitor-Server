@@ -69,7 +69,7 @@ public class MySQLAccess {
         return isExist;
     }
 
-    public void addAdData(Product product) throws Exception {
+    public void addProductData(Product product) throws Exception {
         Connection connect = null;
         boolean isExist = false;
         String sql_string = "select adId from " + db_name + ".PriceMonitor where ProductId=" + product.productId;
@@ -95,8 +95,8 @@ public class MySQLAccess {
             return;
         }
 
-        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPirce, Flag, Category) "
-                + "values(?,?,?,?,?,?)";
+        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPirce, Flag, Category, URL) "
+                + "values(?,?,?,?,?,?,?)";
         try {
             product_info = connect.prepareStatement(sql_string);
             product_info.setString(1, product.productId);
@@ -165,6 +165,41 @@ public class MySQLAccess {
         }
         return product;
     }
+    public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
+        Connection connect = null;
+        PreparedStatement updateStatement = null;
+        String sql_string= "UPDATE"+ db_name + ".Products SET OldPrice = ?, NewPirce = ?, Flag = ? WHERE ProductId = ?";
 
+        System.out.println("sql: " + sql_string);
+        try
+        {
+            connect = getConnection();
+            updateStatement = connect.prepareStatement(sql_string);
+            updateStatement.setDouble(1, oldPrice);
+            updateStatement.setDouble(2, newPrice);
+            updateStatement.setString(3, productId);
+            if(oldPrice > newPrice){
+                updateStatement.setInt(4,1);
+            }else {
+                updateStatement.setInt(4,0);
+            }
+            updateStatement.executeUpdate();
+        }
+        catch(SQLException e )
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        finally
+        {
+            if(updateStatement != null) {
+                updateStatement.close();
+            }
+            if(connect != null) {
+                connect.close();
+            }
+        }
+
+    }
 }
 

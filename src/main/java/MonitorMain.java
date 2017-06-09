@@ -11,7 +11,14 @@ import java.util.concurrent.TimeoutException;
  * Created by NIC on 6/6/17.
  */
 public class MonitorMain {
+    static final String mysql_host = "127.0.0.1:3306";
+    static final String mysql_db = "project";
+    static final String mysql_user = "root";
+    static final String mysql_psw = "1127";
+
     public static void main(String[] args) throws IOException, TimeoutException {
+        final MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("127.0.0.1");
         Connection connection = factory.newConnection();
@@ -24,29 +31,41 @@ public class MonitorMain {
                     throws IOException {
                 Product product = (Product) SerializationUtils.deserialize(body);
                 System.out.println("id  -->" + product.productId);
-                System.out.println("price     --> " + product.price);
+                System.out.println("price     --> " + product.newPrice);
 
-                double newPrice = product.price;
+                double newPrice = product.newPrice;
                 MemcachedClient cache = new MemcachedClient(new InetSocketAddress("127.0.0.1",11211));
+
                 if(cache.get(product.productId) instanceof Double){
+                    //get old Price from cache
                     double cachedPrice = (double) cache.get(product.productId);
-                    //1.update cached price
-                    cache.set(product.productId, 72000, newPrice);
-                    //2.update DB: oldPice = cacahedPrice,newPrice = newPrice
 
-                    if(cachedPrice > newPrice){
-                        //price reduce -> flag = 1
-
-                        //add id into queue
-                    }else{
-                        //price increase -> flag = 0
-
+                    //Price has changed, update database and cache
+                    if(cachedPrice != newPrice){
+                        //1.update DB: oldPice = cacahedPrice,newPrice = newPrice
+                        try {
+                            sqlAccess.updatePrice(product.productId, cachedPrice,newPrice);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //2.update cached price
+                        cache.set(product.productId, 72000, newPrice);
                     }
 
+
+
+
+                //Current product not exist, add it into DB and cache
                 }else {
                     //set cache
                     cache.set(product.productId, 72000, newPrice);
                     //set database
+                    try {
+                        sqlAccess.addProductData(product);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                 }
 

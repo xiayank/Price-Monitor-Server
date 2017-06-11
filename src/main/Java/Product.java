@@ -1,5 +1,3 @@
-package product;
-
 import java.io.Serializable;
 
 /**

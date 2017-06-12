@@ -224,6 +224,7 @@ public class MySQLAccess {
             while (result_set.next()) {
 
                 userSubscribe = result_set.getString("subscribe");
+
                 //System.out.println(userSubscribe);
 
             }
@@ -248,6 +249,43 @@ public class MySQLAccess {
         return userSubscribe;
     }
 
+    public String getUserEmail(String username) throws Exception {
+        Connection connect = null;
+        PreparedStatement adStatement = null;
+        ResultSet result_set = null;
+        String userEmail = "";
+        String sql_string = "select * from " + db_name + ".Users where username=" +"'"+ username+"'";
+        try {
+            connect = getConnection();
+            adStatement = connect.prepareStatement(sql_string);
+            result_set = adStatement.executeQuery();
+            while (result_set.next()) {
+
+                userEmail = result_set.getString("Email");
+
+                //System.out.println(userSubscribe);
+
+            }
+        }
+        catch(SQLException e )
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        finally
+        {
+            if (adStatement != null) {
+                adStatement.close();
+            };
+            if (result_set != null) {
+                result_set.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        }
+        return userEmail;
+    }
 
     public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
         Connection connect = null;

@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Created by NIC on 6/12/17.
  */
 public class EmailSender {
-    public void sendProductsEmail(ArrayList<Product> productList) throws EmailException {
+    public void sendProductsEmail(ArrayList<Product> productList, String userEmail) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setHostName("smtp.googlemail.com");
         email.setSmtpPort(465);
@@ -37,7 +37,8 @@ public class EmailSender {
         email.setHtmlMsg(sb.toString());
         // set the alternative message
         email.setTextMsg("Your email client does not support HTML messages");
-        email.addTo("yan.xia.cs@gmail.com");
+        email.addTo(userEmail);
+//      email.addTo("yan.xia.cs@gmail.com");
         email.send();
     }
 }

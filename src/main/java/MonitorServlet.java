@@ -137,14 +137,16 @@ public class MonitorServlet extends HttpServlet {
 		System.out.println("request ACK!!!!!!!!!!!!!!");
 		String username = request.getParameter("username");
 		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
-		String subscribe = null;
+		String userSubscribe = null;
+		String userEmail = null;
 		try {
-			subscribe = sqlAccess.getUserSubscribe(username);
+			userSubscribe = sqlAccess.getUserSubscribe(username);
+			userEmail = sqlAccess.getUserEmail(username);
 
 
 			ArrayList<Product> productList = null;
 
-			productList = sqlAccess.getReducedProductListBasedCategory("Sports&Outdoors");
+			productList = sqlAccess.getReducedProductListBasedCategory(userSubscribe);
 
 
 			System.out.println(productList.size());
@@ -153,7 +155,7 @@ public class MonitorServlet extends HttpServlet {
 			System.out.println(reducedProduct.title);
 			}
 
-			emailSender.sendProductsEmail(productList);
+			emailSender.sendProductsEmail(productList,userEmail );
 
 
 		} catch (Exception e) {

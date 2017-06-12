@@ -132,7 +132,14 @@ public class MonitorServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		System.out.println("request ACK!!!!!!!!!!!!!!");
 		String username = request.getParameter("username");
-		
+		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
+		String subscribe = null;
+		try {
+			subscribe = sqlAccess.getUserSubscribe(username);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(subscribe);
 
 	}
 }

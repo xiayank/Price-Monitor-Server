@@ -171,7 +171,7 @@ public class MySQLAccess {
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
         String userSubscribe = "";
-        String sql_string = "select * from " + db_name + ".Users where username=" + username;
+        String sql_string = "select * from " + db_name + ".Users where username=" +"'"+ username+"'";
         try {
             connect = getConnection();
             adStatement = connect.prepareStatement(sql_string);
@@ -179,6 +179,7 @@ public class MySQLAccess {
             while (result_set.next()) {
 
                 userSubscribe = result_set.getString("subscribe");
+                //System.out.println(userSubscribe);
 
             }
         }

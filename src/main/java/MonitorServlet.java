@@ -1,7 +1,6 @@
 import com.rabbitmq.client.*;
 import net.spy.memcached.MemcachedClient;
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.mail.EmailException;
 import product.Product;
 
 import javax.servlet.Servlet;
@@ -141,24 +140,23 @@ public class MonitorServlet extends HttpServlet {
 		String subscribe = null;
 		try {
 			subscribe = sqlAccess.getUserSubscribe(username);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
-		ArrayList<Product> productList = null;
-		try {
+
+			ArrayList<Product> productList = null;
+
 			productList = sqlAccess.getReducedProductListBasedCategory("Sports&Outdoors");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println(productList.size());
-		for(Product reducedProduct :productList){
+
+
+			System.out.println(productList.size());
+
+			for(Product reducedProduct :productList){
 			System.out.println(reducedProduct.title);
-		}
-		//System.out.println(subscribe);
-		try {
-			emailSender.sendEmail();
-		} catch (EmailException e) {
+			}
+
+			emailSender.sendProductsEmail(productList);
+
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 

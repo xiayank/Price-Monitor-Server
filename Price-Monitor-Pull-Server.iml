@@ -17,5 +17,8 @@
     <orderEntry type="library" name="Maven: net.spy:spymemcached:2.12.3" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.42" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-email:1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.mail:javax.mail:1.5.2" level="project" />
+    <orderEntry type="library" name="Maven: javax.activation:activation:1.1.1" level="project" />
   </component>
 </module>

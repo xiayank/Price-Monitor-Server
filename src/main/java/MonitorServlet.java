@@ -1,6 +1,7 @@
 import com.rabbitmq.client.*;
 import net.spy.memcached.MemcachedClient;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.mail.EmailException;
 import product.Product;
 
 import javax.servlet.Servlet;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -130,6 +132,9 @@ public class MonitorServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		EmailSender emailSender = new EmailSender();
+
+
 		System.out.println("request ACK!!!!!!!!!!!!!!");
 		String username = request.getParameter("username");
 		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
@@ -139,7 +144,23 @@ public class MonitorServlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(subscribe);
+
+		ArrayList<Product> productList = null;
+		try {
+			productList = sqlAccess.getReducedProductListBasedCategory("Sports&Outdoors");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(productList.size());
+		for(Product reducedProduct :productList){
+			System.out.println(reducedProduct.title);
+		}
+		//System.out.println(subscribe);
+		try {
+			emailSender.sendEmail();
+		} catch (EmailException e) {
+			e.printStackTrace();
+		}
 
 	}
 }

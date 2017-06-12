@@ -1,6 +1,7 @@
 import product.Product;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * Created by NIC on 6/8/17.
@@ -125,7 +126,7 @@ public class MySQLAccess {
         }
     }
 
-    public Product getProduct(String productId) throws Exception {
+    public Product getProductBasedId(String productId) throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
@@ -164,6 +165,50 @@ public class MySQLAccess {
             }
         }
         return product;
+    }
+
+    public ArrayList<Product> getReducedProductListBasedCategory(String category) throws Exception {
+        Connection connect = null;
+        PreparedStatement adStatement = null;
+        ResultSet result_set = null;
+        ArrayList<Product>productList = new ArrayList<>();
+
+        String sql_string = "select * from " + db_name + ".PriceMonitor where Category=" +"'"+ category+"' AND Flag =" + 1 ;
+        try {
+            connect = getConnection();
+            adStatement = connect.prepareStatement(sql_string);
+            result_set = adStatement.executeQuery();
+            while (result_set.next()) {
+                Product product = new Product();
+                product.productId = result_set.getString("ProductId");
+                product.title = result_set.getString("Title");
+                product.newPrice = result_set.getDouble("NewPrice");
+                product.oldPrice = result_set.getDouble("OldPrice");
+                product.category = result_set.getString("Category");
+                product.detailUrl = result_set.getString("URL");
+
+                productList.add(product);
+            }
+
+        }
+        catch(SQLException e )
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        finally
+        {
+            if (adStatement != null) {
+                adStatement.close();
+            };
+            if (result_set != null) {
+                result_set.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        }
+        return productList;
     }
 
     public String getUserSubscribe(String username) throws Exception {

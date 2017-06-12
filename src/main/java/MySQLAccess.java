@@ -7,7 +7,7 @@ import java.sql.*;
  */
 public class MySQLAccess {
     private Connection connection = null;
-    private String user_name;
+    private String db_user_name;
     private String psw;
     private String server_name;
     private String db_name;
@@ -24,7 +24,7 @@ public class MySQLAccess {
         }
 
     public MySQLAccess(String server, String user, String psw, String db){
-        this.user_name = user;
+        this.db_user_name = user;
         this.psw = psw;
         this.server_name = server;
         this.db_name =db;
@@ -33,7 +33,7 @@ public class MySQLAccess {
     private Connection getConnection () throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.jdbc.Driver");
         String conn = "jdbc:mysql://" + server_name + "/" +
-                db_name+"?user="+user_name+"&password="+psw;
+                db_name+"?user="+ db_user_name +"&password="+psw;
         System.out.println("Connecting to database: " + conn);
         connection = DriverManager.getConnection(conn);
         System.out.println("Connected to database");
@@ -165,6 +165,44 @@ public class MySQLAccess {
         }
         return product;
     }
+
+    public String getUserSubscribe(String username) throws Exception {
+        Connection connect = null;
+        PreparedStatement adStatement = null;
+        ResultSet result_set = null;
+        String userSubscribe = "";
+        String sql_string = "select * from " + db_name + ".Users where username=" + username;
+        try {
+            connect = getConnection();
+            adStatement = connect.prepareStatement(sql_string);
+            result_set = adStatement.executeQuery();
+            while (result_set.next()) {
+
+                userSubscribe = result_set.getString("subscribe");
+
+            }
+        }
+        catch(SQLException e )
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        finally
+        {
+            if (adStatement != null) {
+                adStatement.close();
+            };
+            if (result_set != null) {
+                result_set.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        }
+        return userSubscribe;
+    }
+
+
     public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
         Connection connect = null;
         PreparedStatement updateStatement = null;

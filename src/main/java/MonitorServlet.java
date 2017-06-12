@@ -130,8 +130,9 @@ public class MonitorServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		System.out.println("server start!!!!!!!!!!!!!!");
-		//String query = request.getParameter("q");
+		System.out.println("request ACK!!!!!!!!!!!!!!");
+		String username = request.getParameter("username");
+		
 
 	}
 }

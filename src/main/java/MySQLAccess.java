@@ -1,3 +1,5 @@
+import product.Product;
+
 import java.sql.*;
 
 /**

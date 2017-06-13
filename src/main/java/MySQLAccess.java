@@ -96,7 +96,7 @@ public class MySQLAccess {
             return;
         }
 
-        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPirce, Flag, Category, URL) "
+        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPrice, Flag, Category, URL) "
                 + "values(?,?,?,?,?,?,?)";
         try {
             product_info = connect.prepareStatement(sql_string);

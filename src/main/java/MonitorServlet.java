@@ -47,9 +47,55 @@ public class MonitorServlet extends HttpServlet {
 //		ServletContext application = config.getServletContext();
 //	    String adsDataFilePath = application.getRealPath(application.getInitParameter("adsDataFilePath"));
 //		int memcachedPortal = Integer.parseInt(application.getInitParameter("memcachedPortal"));
-//		this.adsEngine = new AdsEngine(adsDataFilePath,budgetDataFilePath,memcachedServer,memcachedPortal,mSynonymsFilePath,mysqlHost,mysqlDb,mysqlUser,mysqlPass);
-//		this.adsEngine.init();
-//		System.out.println("adsEngine initilized");
+
+
+		productQueueConsumer("LevelOne");
+		productQueueConsumer("LevelTwo");
+
+
+
+
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		EmailSender emailSender = new EmailSender();
+
+
+		System.out.println("request ACK!!!!!!!!!!!!!!");
+		String username = request.getParameter("username");
+		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
+		String userSubscribe = null;
+		String userEmail = null;
+		try {
+			userSubscribe = sqlAccess.getUserSubscribe(username);
+			userEmail = sqlAccess.getUserEmail(username);
+
+
+			ArrayList<Product> productList = null;
+
+			productList = sqlAccess.getReducedProductListBasedCategory(userSubscribe);
+
+
+			System.out.println(productList.size());
+
+			for(Product reducedProduct :productList){
+			System.out.println(reducedProduct.title);
+			}
+
+			emailSender.sendProductsEmail(productList,userEmail );
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void productQueueConsumer(String MQName){
 		final MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
 
 		ConnectionFactory factory = new ConnectionFactory();
@@ -114,53 +160,11 @@ public class MonitorServlet extends HttpServlet {
 				}
 			};
 
-			channel.basicConsume("Q_demo", true, consumer);
+			channel.basicConsume(MQName, true, consumer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		}
-
-
-
-
-	}
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		EmailSender emailSender = new EmailSender();
-
-
-		System.out.println("request ACK!!!!!!!!!!!!!!");
-		String username = request.getParameter("username");
-		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
-		String userSubscribe = null;
-		String userEmail = null;
-		try {
-			userSubscribe = sqlAccess.getUserSubscribe(username);
-			userEmail = sqlAccess.getUserEmail(username);
-
-
-			ArrayList<Product> productList = null;
-
-			productList = sqlAccess.getReducedProductListBasedCategory(userSubscribe);
-
-
-			System.out.println(productList.size());
-
-			for(Product reducedProduct :productList){
-			System.out.println(reducedProduct.title);
-			}
-
-			emailSender.sendProductsEmail(productList,userEmail );
-
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 	}
 }

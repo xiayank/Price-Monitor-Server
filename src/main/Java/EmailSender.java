@@ -26,10 +26,6 @@ public class EmailSender {
                     "<h3> New Price: "+product.newPrice +"</h3>\n"+
                     "<h3> Link: "+product.detailUrl +"</h3>\n <hr>");
 
-
-//            email.setMsg("Title: "+product.title +"/n" );
-//            email.setMsg("oldPrice: "+product.oldPrice +"/n" );
-//            email.setMsg("detailUrl: "+product.detailUrl +"/n" );
         }
         sb.append("\n" +
                 "</body>\n" +

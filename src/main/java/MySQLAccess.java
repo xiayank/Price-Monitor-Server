@@ -290,7 +290,7 @@ public class MySQLAccess {
     public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
         Connection connect = null;
         PreparedStatement updateStatement = null;
-        String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPirce = ?, Flag = ? WHERE ProductId = ?";
+        String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPrice = ?, Flag = ? WHERE ProductId = ?";
 
         System.out.println("sql: " + sql_string);
         try

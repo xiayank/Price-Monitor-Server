@@ -48,9 +48,14 @@ public class MonitorServlet extends HttpServlet {
 //	    String adsDataFilePath = application.getRealPath(application.getInitParameter("adsDataFilePath"));
 //		int memcachedPortal = Integer.parseInt(application.getInitParameter("memcachedPortal"));
 
-
-		productQueueConsumer("LevelOne");
-		productQueueConsumer("LevelTwo");
+		MemcachedClient cache = null;
+		try {
+			cache = new MemcachedClient(new InetSocketAddress("127.0.0.1",11211));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		productQueueConsumer("LevelOne", cache);
+		productQueueConsumer("LevelTwo", cache);
 
 
 
@@ -95,7 +100,7 @@ public class MonitorServlet extends HttpServlet {
 
 	}
 
-	private void productQueueConsumer(String MQName){
+	private void productQueueConsumer(String MQName, MemcachedClient cache){
 		final MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
 
 		ConnectionFactory factory = new ConnectionFactory();
@@ -115,7 +120,7 @@ public class MonitorServlet extends HttpServlet {
 
 
 					double newPrice = product.newPrice;
-					MemcachedClient cache = new MemcachedClient(new InetSocketAddress("127.0.0.1",11211));
+
 
 					if(cache.get(product.productId) instanceof Double){
 						//get old Price from cache

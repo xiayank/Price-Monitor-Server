@@ -11,8 +11,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -90,9 +93,27 @@ public class MonitorServlet extends HttpServlet {
 			for(Product reducedProduct :productList){
 			System.out.println(reducedProduct.title);
 			}
-
+			//send email
 			emailSender.sendProductsEmail(productList,userEmail );
 
+			//show on page
+			response.setContentType("text/html");
+			PrintWriter out = response.getWriter();
+			StringBuffer sb = new StringBuffer("<html>\n" +
+					"<body>\n" +
+					"\n"+
+					"<h2>Total product number:"+productList.size()+"</h2> \n <hr>");
+			for(Product product: productList){
+				sb.append("<h2> Title: "+product.title +"</h2>\n"+
+						"<h3> Old Price: "+product.oldPrice +"</h3>\n"+
+						"<h3> New Price: "+product.newPrice +"</h3>\n"+
+						"<h3> Link: "+product.detailUrl +"</h3>\n <hr>");
+
+			}
+			sb.append("\n" +
+					"</body>\n" +
+					"</html>");
+			out.println(sb.toString());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -131,15 +152,17 @@ public class MonitorServlet extends HttpServlet {
 							//1.update DB: oldPice = cacahedPrice,newPrice = newPrice
 							try {
 								sqlAccess.updatePrice(product.productId, cachedPrice, newPrice);
-								System.out.println("update product" + product.productId + " " + product.newPrice);
+								System.out.println("update product " + product.productId + " " + newPrice + " " + cachedPrice);
+								System.out.println(product.detailUrl);
+								Calendar cal = Calendar.getInstance();
+								SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+								System.out.println( "current time "+ sdf.format(cal.getTime()) );
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 							//2.update cached price
 							cache.set(product.productId, 72000, newPrice);
 						}
-
-
 
 
 						//Current product not exist, add it into DB and cache

@@ -60,6 +60,7 @@ public class MonitorServlet extends HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//consumer queue, decide whether the price has reduced or not
 		productQueueConsumer(productsQueueName_1, reducedQueueName,cache);
 		productQueueConsumer(productsQueueName_2,reducedQueueName, cache);
 
@@ -201,24 +202,33 @@ public class MonitorServlet extends HttpServlet {
 						if(cachedPrice != newPrice){
 							//1.update DB : oldPice = cacahedPrice,newPrice = newPrice
 							try {
-								// price decreased -> set Flag as 1
-								if(cachedPrice > newPrice){
-									//update DB
-									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,1);
-									//push reduced product into queue
-									product.oldPrice = cachedPrice;
-									producer_Channel.basicPublish("", producerQueueName, null, SerializationUtils.serialize(product));
-									//producer_Channel.close();
 
+								double threshold = 0.95;
+								if(cachedPrice > newPrice){
+									// price decreased and also more than threshold -> set Flag as 1
+									if(cachedPrice * threshold > newPrice){
+										//update DB
+										sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,1);
+										//push reduced product into queue
+										product.oldPrice = cachedPrice;
+										producer_Channel.basicPublish("", producerQueueName, null, SerializationUtils.serialize(product));
+										//producer_Channel.close();
+
+									}
+								//if price increased -> update DB
 								}else {
 									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,0);
-								}
-								System.out.println("update product " + product.productId + " " + newPrice + " " + cachedPrice);
-								System.out.println(product.detailUrl);
 
-								Calendar cal = Calendar.getInstance();
-								SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-								System.out.println( "current time "+ sdf.format(cal.getTime()) );
+									System.out.println("update product " + product.productId + " " + newPrice + " " + cachedPrice);
+									System.out.println(product.detailUrl);
+
+									Calendar cal = Calendar.getInstance();
+									SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+									System.out.println( "current time "+ sdf.format(cal.getTime()) );
+								}
+
+
+
 
 							} catch (Exception e) {
 								e.printStackTrace();

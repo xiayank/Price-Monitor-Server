@@ -249,7 +249,7 @@ public class MySQLAccess {
         return userSubscribe;
     }
 
-    public String getUserEmail(String username) throws Exception {
+    public String getUserEmailByUsername(String username) throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
@@ -285,6 +285,46 @@ public class MySQLAccess {
             }
         }
         return userEmail;
+    }
+
+    public ArrayList<String>  getAllEmails() throws Exception {
+        Connection connect = null;
+        PreparedStatement adStatement = null;
+        ResultSet result_set = null;
+        String userEmail = "";
+        ArrayList<String> emailList = new ArrayList<>();
+        String sql_string = "select Email from " + db_name + ".Users ";
+        try {
+            connect = getConnection();
+            adStatement = connect.prepareStatement(sql_string);
+            result_set = adStatement.executeQuery();
+
+            while (result_set.next()) {
+
+                userEmail = result_set.getString("Email");
+                emailList.add(userEmail);
+                //System.out.println(userSubscribe);
+
+            }
+        }
+        catch(SQLException e )
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        finally
+        {
+            if (adStatement != null) {
+                adStatement.close();
+            };
+            if (result_set != null) {
+                result_set.close();
+            }
+            if (connect != null) {
+                connect.close();
+            }
+        }
+        return emailList;
     }
 
     public void updatePrice(String productId, Double oldPrice, Double newPrice, int Flag) throws Exception {

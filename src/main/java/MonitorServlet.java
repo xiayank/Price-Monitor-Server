@@ -29,7 +29,10 @@ public class MonitorServlet extends HttpServlet {
 	static final String mysql_db = "project";
 	static final String mysql_user = "root";
 	static final String mysql_psw = "1127";
-
+	static final String productsQueueName_1 = "LevelOne";
+	static final String productsQueueName_2 = "LevelTwo";
+	static final String productsQueueName_3 = "LevelThree";
+	static final String reducedQueueName = "ReducedProducts";
 
 	/**
      * @see HttpServlet#HttpServlet()
@@ -57,8 +60,49 @@ public class MonitorServlet extends HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		productQueueConsumer("LevelOne", "ReducedProducts",cache);
-		productQueueConsumer("LevelTwo","ReducedProducts", cache);
+		productQueueConsumer(productsQueueName_1, reducedQueueName,cache);
+		productQueueConsumer(productsQueueName_2,reducedQueueName, cache);
+
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost("127.0.0.1");
+		Connection connection = null;
+		try {
+			connection = factory.newConnection();
+			Channel consumer_Channel = connection.createChannel();
+			consumer_Channel.queueDeclare(reducedQueueName,true,false,false,null);
+			Consumer consumer = new DefaultConsumer(consumer_Channel) {
+				@Override
+				public void handleDelivery(String consumerTag, Envelope envelope,
+										   AMQP.BasicProperties properties, byte[] body)
+						throws IOException {
+					Product product = (Product) SerializationUtils.deserialize(body);
+					EmailSender emailSender = new EmailSender();
+					MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
+
+					try {
+						ArrayList<String> emailList = sqlAccess.getAllEmails();
+						ArrayList<Product> productList = new ArrayList<>();
+						productList.add(product);
+						for(String email :emailList){
+
+							emailSender.sendProductsEmail(productList,email);
+
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+
+				}
+			};
+			consumer_Channel.basicConsume(reducedQueueName, true, consumer);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}
+		//create consumer Channel
 
 
 
@@ -80,7 +124,7 @@ public class MonitorServlet extends HttpServlet {
 		String userEmail = null;
 		try {
 			userSubscribe = sqlAccess.getUserSubscribe(username);
-			userEmail = sqlAccess.getUserEmail(username);
+			userEmail = sqlAccess.getUserEmailByUsername(username);
 
 
 			ArrayList<Product> productList = null;

@@ -287,7 +287,7 @@ public class MySQLAccess {
         return userEmail;
     }
 
-    public void updatePrice(String productId, Double oldPrice, Double newPrice) throws Exception {
+    public void updatePrice(String productId, Double oldPrice, Double newPrice, int Flag) throws Exception {
         Connection connect = null;
         PreparedStatement updateStatement = null;
         String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPrice = ?, Flag = ? WHERE ProductId = ?";
@@ -300,11 +300,13 @@ public class MySQLAccess {
             updateStatement.setDouble(1, oldPrice);
             updateStatement.setDouble(2, newPrice);
             updateStatement.setString(4, productId);
-            if(oldPrice > newPrice){
-                updateStatement.setInt(3,1);
-            }else {
-                updateStatement.setInt(3,0);
-            }
+            updateStatement.setInt(3, Flag);
+//            if(oldPrice > newPrice){
+//                updateStatement.setInt(3,1);
+//            }else {
+//                updateStatement.setInt(3,0);
+//            }
+
             updateStatement.executeUpdate();
         }
         catch(SQLException e )

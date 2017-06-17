@@ -44,6 +44,27 @@ Check the table structure
 > use searchads;
 > show tables;
 ```
+Add rows into `Users` table by following table structure:
+```sql
+  `username` varchar(255) DEFAULT NULL,
+  `subscribe` varchar(255) DEFAULT NULL,
+  `Email` varchar(255) DEFAULT NULL,
+  `threshold` double DEFAULT NULL,
+```
+Notice: You can select one category from following list:
+```text
+Book
+Electronics&Computer
+Home,Garden&Tools
+Food&Grocery
+Beauty&Health
+Toys,Kids&Baby
+Handmade
+Sports&Outdoors
+Automotive&Industrial
+```
+
+
 
 ### Run Application
 
@@ -55,3 +76,14 @@ mvn clean install
 ```bash
 mvn jetty:run
 ```
+
+### Test server
+#### Pull server 
+Go to page :
+```
+http://localhost:8080/Amazon-Price-Monitor/
+```
+Input your username, then you will receive a email about the reduced price products from your subscribe.
+
+#### Push server
+You will receive a instant email notify if there is price decrease. 

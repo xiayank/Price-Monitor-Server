@@ -11,7 +11,7 @@
  Target Server Version : 50718
  File Encoding         : utf-8
 
- Date: 06/12/2017 11:37:29 AM
+ Date: 06/17/2017 15:11:36 PM
 */
 
 SET NAMES utf8;
@@ -25,8 +25,8 @@ CREATE TABLE `PriceMonitor` (
   `ProductId` varchar(255) NOT NULL,
   `Title` varchar(255) DEFAULT NULL,
   `OldPrice` double DEFAULT NULL,
-  `NewPirce` double DEFAULT NULL,
-  `Flag` tinyint(4) DEFAULT NULL,
+  `NewPrice` double DEFAULT NULL,
+  `Reduced_Percentage` double DEFAULT NULL,
   `Category` varchar(255) DEFAULT NULL,
   `URL` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ProductId`)

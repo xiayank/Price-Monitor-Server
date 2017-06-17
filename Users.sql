@@ -11,7 +11,7 @@
  Target Server Version : 50718
  File Encoding         : utf-8
 
- Date: 06/16/2017 11:25:18 AM
+ Date: 06/17/2017 15:11:45 PM
 */
 
 SET NAMES utf8;
@@ -22,17 +22,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `Users`;
 CREATE TABLE `Users` (
-  `username` varchar(255) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) DEFAULT NULL,
   `subscribe` varchar(255) DEFAULT NULL,
-  `Email` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
---  Records of `Users`
--- ----------------------------
-BEGIN;
-INSERT INTO `Users` VALUES ('Alex', 'Sports&Outdoors', 'yan.xia.cs@gmail.com'), ('Bob', 'Electronics&Computer', 'xiayan_cpp@qq.com');
-COMMIT;
+  `Email` varchar(255) DEFAULT NULL,
+  `threshold` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS = 1;

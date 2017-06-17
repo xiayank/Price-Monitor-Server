@@ -2,6 +2,7 @@ import product.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by NIC on 6/8/17.
@@ -96,16 +97,16 @@ public class MySQLAccess {
             return;
         }
 
-        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPrice, Flag, Category, URL) "
+        sql_string = "insert into " + db_name +".PriceMonitor(ProductId, Title, OldPrice, NewPrice, Reduced_Percentage, Category, URL) "
                 + "values(?,?,?,?,?,?,?)";
         try {
             product_info = connect.prepareStatement(sql_string);
             product_info.setString(1, product.productId);
             product_info.setString(2, product.title);
 
-            product_info.setDouble(3, 0);
+            product_info.setDouble(3, product.oldPrice);
             product_info.setDouble(4, product.newPrice);
-            product_info.setInt(5, 0);
+            product_info.setDouble(5, product.reducedPercentage);
             product_info.setString(6, product.category);
             product_info.setString(7,product.detailUrl);
             product_info.executeUpdate();
@@ -167,55 +168,65 @@ public class MySQLAccess {
         return product;
     }
 
-    public ArrayList<Product> getReducedProductListBasedCategory(String category) throws Exception {
+    public ArrayList<Product> getReducedProductListBasedCategoryMap(HashMap<String, Double> categoryMap) throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
         ArrayList<Product>productList = new ArrayList<>();
 
-        String sql_string = "select * from " + db_name + ".PriceMonitor where Category=" +"'"+ category+"' AND Flag =" + 1 ;
-        try {
-            connect = getConnection();
-            adStatement = connect.prepareStatement(sql_string);
-            result_set = adStatement.executeQuery();
-            while (result_set.next()) {
-                Product product = new Product();
-                product.productId = result_set.getString("ProductId");
-                product.title = result_set.getString("Title");
-                product.newPrice = result_set.getDouble("NewPrice");
-                product.oldPrice = result_set.getDouble("OldPrice");
-                product.category = result_set.getString("Category");
-                product.detailUrl = result_set.getString("URL");
+        for( String category : categoryMap.keySet()){
+            double threshold = categoryMap.get(category);
 
-                productList.add(product);
+            System.out.println("category ->"+ category+ ", threshold ->" + threshold);
+
+            String sql_string = "select * from " + db_name + ".PriceMonitor where Category=" +"'"+ category+"' AND Reduced_Percentage > " + threshold ;
+            try {
+                connect = getConnection();
+                adStatement = connect.prepareStatement(sql_string);
+                result_set = adStatement.executeQuery();
+                while (result_set.next()) {
+                    Product product = new Product();
+                    product.productId = result_set.getString("ProductId");
+                    product.title = result_set.getString("Title");
+                    product.newPrice = result_set.getDouble("NewPrice");
+                    product.oldPrice = result_set.getDouble("OldPrice");
+                    product.category = result_set.getString("Category");
+                    product.detailUrl = result_set.getString("URL");
+                    product.reducedPercentage = result_set.getDouble("Reduced_Percentage");
+
+                    productList.add(product);
+                }
+
+            }
+            catch(SQLException e )
+            {
+                System.out.println(e.getMessage());
+                throw e;
+            }
+            finally
+            {
+                if (adStatement != null) {
+                    adStatement.close();
+                };
+                if (result_set != null) {
+                    result_set.close();
+                }
+                if (connect != null) {
+                    connect.close();
+                }
             }
 
         }
-        catch(SQLException e )
-        {
-            System.out.println(e.getMessage());
-            throw e;
-        }
-        finally
-        {
-            if (adStatement != null) {
-                adStatement.close();
-            };
-            if (result_set != null) {
-                result_set.close();
-            }
-            if (connect != null) {
-                connect.close();
-            }
-        }
+
+
         return productList;
     }
 
-    public String getUserSubscribe(String username) throws Exception {
+    public ArrayList<HashMap<String, Double>> getUserSubscribeAndThreshold(String username) throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
-        String userSubscribe = "";
+        ArrayList<HashMap<String, Double>> userSubscribeList = null;
         String sql_string = "select * from " + db_name + ".Users where username=" +"'"+ username+"'";
         try {
             connect = getConnection();
@@ -223,8 +234,11 @@ public class MySQLAccess {
             result_set = adStatement.executeQuery();
             while (result_set.next()) {
 
-                userSubscribe = result_set.getString("subscribe");
-
+                String userSubscribe = result_set.getString("subscribe");
+                double threshold = result_set.getDouble("threshold");
+                HashMap<String,Double> map =  new HashMap<String,Double>();
+                map.put(userSubscribe, threshold);
+                userSubscribeList.add(map);
                 //System.out.println(userSubscribe);
 
             }
@@ -246,9 +260,10 @@ public class MySQLAccess {
                 connect.close();
             }
         }
-        return userSubscribe;
+        return userSubscribeList;
     }
 
+    //By default, return first email of user. Each user has one email
     public String getUserEmailByUsername(String username) throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
@@ -327,10 +342,10 @@ public class MySQLAccess {
         return emailList;
     }
 
-    public void updatePrice(String productId, Double oldPrice, Double newPrice, int Flag) throws Exception {
+    public void updatePrice(String productId, Double oldPrice, Double newPrice, Double percentage) throws Exception {
         Connection connect = null;
         PreparedStatement updateStatement = null;
-        String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPrice = ?, Flag = ? WHERE ProductId = ?";
+        String sql_string= "UPDATE "+ db_name + ".PriceMonitor SET OldPrice = ?, NewPrice = ?, Reduced_Percentage = ? WHERE ProductId = ?";
 
         System.out.println("sql: " + sql_string);
         try
@@ -340,7 +355,7 @@ public class MySQLAccess {
             updateStatement.setDouble(1, oldPrice);
             updateStatement.setDouble(2, newPrice);
             updateStatement.setString(4, productId);
-            updateStatement.setInt(3, Flag);
+            updateStatement.setDouble(3, percentage);
 //            if(oldPrice > newPrice){
 //                updateStatement.setInt(3,1);
 //            }else {

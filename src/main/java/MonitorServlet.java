@@ -125,6 +125,7 @@ public class MonitorServlet extends HttpServlet {
 		String userEmail = null;
 		try {
 			userSubscribe = sqlAccess.getUserSubscribe(username);
+
 			userEmail = sqlAccess.getUserEmailByUsername(username);
 
 
@@ -203,18 +204,17 @@ public class MonitorServlet extends HttpServlet {
 							//1.update DB : oldPice = cacahedPrice,newPrice = newPrice
 							try {
 
-								double threshold = 0.95;
 								if(cachedPrice > newPrice){
-									// price decreased and also more than threshold -> set Flag as 1
-									if(cachedPrice * threshold > newPrice){
-										//update DB
-										sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,1);
-										//push reduced product into queue
-										product.oldPrice = cachedPrice;
-										producer_Channel.basicPublish("", producerQueueName, null, SerializationUtils.serialize(product));
-										//producer_Channel.close();
 
-									}
+									//update DB
+									double percentage = (cachedPrice - newPrice) / cachedPrice ;
+									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,percentage);
+									//push reduced product into queue
+									product.oldPrice = cachedPrice;
+									producer_Channel.basicPublish("", producerQueueName, null, SerializationUtils.serialize(product));
+									//producer_Channel.close();
+
+
 								//if price increased -> update DB
 								}else {
 									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,0);
@@ -226,9 +226,6 @@ public class MonitorServlet extends HttpServlet {
 									SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 									System.out.println( "current time "+ sdf.format(cal.getTime()) );
 								}
-
-
-
 
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -245,6 +242,8 @@ public class MonitorServlet extends HttpServlet {
 						//set database
 
 						try {
+							product.oldPrice = 0;
+							product.reducedPercentage = 0;
 							sqlAccess.addProductData(product);
 						} catch (Exception e) {
 							e.printStackTrace();

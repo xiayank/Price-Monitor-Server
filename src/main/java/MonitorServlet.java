@@ -16,6 +16,8 @@ import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -54,16 +56,20 @@ public class MonitorServlet extends HttpServlet {
 //	    String adsDataFilePath = application.getRealPath(application.getInitParameter("adsDataFilePath"));
 //		int memcachedPortal = Integer.parseInt(application.getInitParameter("memcachedPortal"));
 
+		//1.consumer queue, decide whether the price has reduced or not
 		MemcachedClient cache = null;
 		try {
 			cache = new MemcachedClient(new InetSocketAddress("127.0.0.1",11211));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		//consumer queue, decide whether the price has reduced or not
+
 		productQueueConsumer(productsQueueName_1, reducedQueueName,cache);
 		productQueueConsumer(productsQueueName_2,reducedQueueName, cache);
 
+
+
+		//2.push mode -> send all reduced price product to all the user
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost("127.0.0.1");
 		Connection connection = null;
@@ -81,7 +87,7 @@ public class MonitorServlet extends HttpServlet {
 					MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
 
 					try {
-						ArrayList<String> emailList = sqlAccess.getAllEmails();
+						HashSet<String> emailList = sqlAccess.getAllEmails();
 						ArrayList<Product> productList = new ArrayList<>();
 						productList.add(product);
 						for(String email :emailList){
@@ -119,19 +125,22 @@ public class MonitorServlet extends HttpServlet {
 
 
 		System.out.println("request ACK!!!!!!!!!!!!!!");
+
+		//Take username as parameter
 		String username = request.getParameter("username");
 		MySQLAccess sqlAccess = new MySQLAccess(mysql_host, mysql_user, mysql_psw,mysql_db);
-		String userSubscribe = null;
+		ArrayList<HashMap<String, Double>> userSubscribeMapList = null;
 		String userEmail = null;
+		ArrayList<Product> productList = new ArrayList<>();
 		try {
-			userSubscribe = sqlAccess.getUserSubscribe(username);
+			userSubscribeMapList = sqlAccess.getUserSubscribeAndThreshold(username);
+
+			for(HashMap<String, Double> subscribeMap : userSubscribeMapList){
+				productList.addAll(sqlAccess.getReducedProductListBasedCategoryMap(subscribeMap));
+			}
+
 
 			userEmail = sqlAccess.getUserEmailByUsername(username);
-
-
-			ArrayList<Product> productList = null;
-
-			productList = sqlAccess.getReducedProductListBasedCategory(userSubscribe);
 
 
 			System.out.println(productList.size());
@@ -153,6 +162,7 @@ public class MonitorServlet extends HttpServlet {
 				sb.append("<h2> Title: "+product.title +"</h2>\n"+
 						"<h3> Old Price: "+product.oldPrice +"</h3>\n"+
 						"<h3> New Price: "+product.newPrice +"</h3>\n"+
+						"<h3> Category: "+product.category +"</h3>\n"+
 						"<h3> Link: "+product.detailUrl +"</h3>\n <hr>");
 
 			}
@@ -217,7 +227,7 @@ public class MonitorServlet extends HttpServlet {
 
 								//if price increased -> update DB
 								}else {
-									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice,0);
+									sqlAccess.updatePrice(product.productId, cachedPrice, newPrice, 0.0);
 
 									System.out.println("update product " + product.productId + " " + newPrice + " " + cachedPrice);
 									System.out.println(product.detailUrl);

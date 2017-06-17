@@ -3,6 +3,7 @@ import product.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by NIC on 6/8/17.
@@ -226,7 +227,7 @@ public class MySQLAccess {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
-        ArrayList<HashMap<String, Double>> userSubscribeList = null;
+        ArrayList<HashMap<String, Double>> userSubscribeList = new ArrayList<>();
         String sql_string = "select * from " + db_name + ".Users where username=" +"'"+ username+"'";
         try {
             connect = getConnection();
@@ -302,12 +303,12 @@ public class MySQLAccess {
         return userEmail;
     }
 
-    public ArrayList<String>  getAllEmails() throws Exception {
+    public HashSet<String> getAllEmails() throws Exception {
         Connection connect = null;
         PreparedStatement adStatement = null;
         ResultSet result_set = null;
         String userEmail = "";
-        ArrayList<String> emailList = new ArrayList<>();
+        HashSet<String> emailSet = new HashSet<>();
         String sql_string = "select Email from " + db_name + ".Users ";
         try {
             connect = getConnection();
@@ -317,7 +318,9 @@ public class MySQLAccess {
             while (result_set.next()) {
 
                 userEmail = result_set.getString("Email");
-                emailList.add(userEmail);
+                if(!emailSet.contains(userEmail)){
+                    emailSet.add(userEmail);
+                }
                 //System.out.println(userSubscribe);
 
             }
@@ -339,7 +342,7 @@ public class MySQLAccess {
                 connect.close();
             }
         }
-        return emailList;
+        return emailSet;
     }
 
     public void updatePrice(String productId, Double oldPrice, Double newPrice, Double percentage) throws Exception {

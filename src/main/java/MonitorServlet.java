@@ -259,6 +259,7 @@ public class MonitorServlet extends HttpServlet {
 							e.printStackTrace();
 						}
 						System.out.println("Add into database:Id  -->" + product.productId);
+						System.out.println("Add into database:Title  -->" + product.title);
 						System.out.println("Add into database: Price --> " + product.newPrice);
 
 

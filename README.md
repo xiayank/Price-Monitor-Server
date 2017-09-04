@@ -1,6 +1,7 @@
 # Price-Monitor-Server
 This server implement pull and push notify model.
-
+## Run Crawler first
+[Amazon-Preparing-Crawler](https://github.com/xiayank/Amazon-Preparing-Crawler)
 ## Getting started
 
 ### Memcached

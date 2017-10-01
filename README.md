@@ -83,8 +83,8 @@ User for this app will be the customer of Amazon who wants to know the price red
 > 200 * 480,000,000 = 96,000,000,000 = 96 GB
 > 96GB disk is not a problem for our system
 
-----
-##Part2: Run Project
+
+## Part2: Run Project
 ## Run Crawler first
 [Amazon-Preparing-Crawler](https://github.com/xiayank/Amazon-Preparing-Crawler)
 ## Getting started

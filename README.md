@@ -1,11 +1,11 @@
 # Price-Monitor-Server
 This server implement pull and push notify model.
-## Project Design
+## Part1: Project Design
 ### User Case
 User for this app will be the customer of Amazon who wants to know the price reducing of particular category products. User will first subscribe a few categories they are interesting, then they will receive emails of products list if there are price reducing. Also, user can also select the email sending frequency. The default will be once per day. 
 
 ### Architecture Design
-![Alt text](./Screen Shot 2017-05-29 at 10.09.23 PM.png)
+![Architecture schema](Architecture.png)
 
 
 ###  Component Design
@@ -84,7 +84,7 @@ User for this app will be the customer of Amazon who wants to know the price red
 > 96GB disk is not a problem for our system
 
 ----
-## Run Project
+##Part2: Run Project
 ## Run Crawler first
 [Amazon-Preparing-Crawler](https://github.com/xiayank/Amazon-Preparing-Crawler)
 ## Getting started

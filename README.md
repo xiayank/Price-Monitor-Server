@@ -5,7 +5,7 @@ This server implement pull and push notify model.
 User for this app will be the customer of Amazon who wants to know the price reducing of particular category products. User will first subscribe a few categories they are interesting, then they will receive emails of products list if there are price reducing. Also, user can also select the email sending frequency. The default will be once per day. 
 
 ### Architecture Design
-![Architecture schema](Architecture.png)
+![Architecture schema](https://github.com/xiayank/Price-Monitor-Server/blob/master/src/main/resources/Architecture.png)
 
 
 ###  Component Design
